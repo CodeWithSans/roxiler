@@ -7,3 +7,4 @@ const sql = postgres(connectionString,{
 })
 
 export default sql
+
