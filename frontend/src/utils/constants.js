@@ -9,3 +9,13 @@ export const HOME_BY_ROLE = {
   USER: '/stores',
   OWNER: '/owner',
 }
+
+export const NAV_LINKS = {
+  ADMIN: [
+    { to: '/admin', label: 'Dashboard' },
+    { to: '/admin/users', label: 'Users' },
+    { to: '/admin/stores', label: 'Stores' },
+  ],
+  USER: [{ to: '/stores', label: 'Stores' }],
+  OWNER: [{ to: '/owner', label: 'Dashboard' }],
+}
