@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ROLES } from './constants.js'
 
 export const nameRule = z.string().trim()
   .min(20, 'Name must be at least 20 characters')
@@ -35,3 +36,8 @@ export const updatePasswordSchema = z.object({
   message: 'Passwords do not match',
   path: ['confirmPassword'],
 })
+
+export const createUserSchema = signupSchema.extend({
+  role: z.enum(Object.values(ROLES), 'Please choose a role'),
+})
+

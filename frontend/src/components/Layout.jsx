@@ -23,7 +23,7 @@ export default function Layout() {
           <nav className="flex flex-wrap items-center gap-1">
             <span className="mr-3 text-lg font-semibold text-gray-800">StoreRatings</span>
             {NAV_LINKS[user.role].map((link) => (
-              <NavLink key={link.to} to={link.to} end className={linkClass}>
+              <NavLink key={link.to} to={link.to} end={link.end} className={linkClass}>
                 {link.label}
               </NavLink>
             ))}

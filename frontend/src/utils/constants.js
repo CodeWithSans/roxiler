@@ -12,10 +12,17 @@ export const HOME_BY_ROLE = {
 
 export const NAV_LINKS = {
   ADMIN: [
-    { to: '/admin', label: 'Dashboard' },
+    { to: '/admin', label: 'Dashboard', end: true },
     { to: '/admin/users', label: 'Users' },
     { to: '/admin/stores', label: 'Stores' },
   ],
   USER: [{ to: '/stores', label: 'Stores' }],
   OWNER: [{ to: '/owner', label: 'Dashboard' }],
 }
+
+export const ROLE_LABELS = {
+  ADMIN: 'Admin',
+  USER: 'Normal user',
+  OWNER: 'Store owner',
+}
+
