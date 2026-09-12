@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ROLES } from './constants.js'
 
 export const nameRule = z.string().trim()
   .min(20, 'Name must be at least 20 characters')
@@ -44,3 +45,33 @@ export const ratingSchema = z.object({
 })
 
 export const idSchema = z.uuid()
+
+const roleRule = z.enum(Object.values(ROLES), 'Role must be ADMIN, USER or OWNER')
+
+export const createUserSchema = registerSchema.extend({
+  role: roleRule,
+})
+
+export const userQuerySchema = z.object({
+  name: z.string().trim().catch(''),
+  email: z.string().trim().catch(''),
+  address: z.string().trim().catch(''),
+  role: roleRule.optional().catch(undefined),
+  sortBy: z.enum(['name', 'email', 'address', 'role']).catch('name'),
+  order: z.enum(['asc', 'desc']).catch('asc'),
+})
+
+export const storeAdminQuerySchema = z.object({
+  name: z.string().trim().catch(''),
+  email: z.string().trim().catch(''),
+  address: z.string().trim().catch(''),
+  sortBy: z.enum(['name', 'email', 'address', 'rating']).catch('name'),
+  order: z.enum(['asc', 'desc']).catch('asc'),
+})
+
+export const createStoreSchema = z.object({
+  name: nameRule,
+  email: emailRule,
+  address: addressRule,
+  ownerId: z.uuid('Invalid owner id').optional(),
+})

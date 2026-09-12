@@ -5,7 +5,7 @@ import { ROLES } from '../utils/constants.js'
 import jwt from 'jsonwebtoken'
 
 
-export async function registerUser({ name, email, address, password }) {
+export async function registerUser({ name, email, address, password },role = ROLES.USER) {
   const [existing] = await sql`select id from users where email = ${email}`
   if (existing) {
     throw new AppError(409, 'Email is already registered')
@@ -15,7 +15,7 @@ export async function registerUser({ name, email, address, password }) {
 
   const [user] = await sql`
     insert into users (name, email, address, password_hash, role)
-    values (${name}, ${email}, ${address}, ${passwordHash}, ${ROLES.USER})
+    values (${name}, ${email}, ${address}, ${passwordHash}, ${role})
     returning id, name, email, address, role`
 
     
