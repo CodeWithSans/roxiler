@@ -27,3 +27,8 @@ export const loginSchema = z.object({
   email: emailRule,
   password: z.string().min(1, 'Password is required'),
 })
+
+export const updatePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: passwordRule,
+})

@@ -40,3 +40,25 @@ export async function loginUser({ email, password }) {
   delete user.password_hash
   return { user, token }
 }
+export async function getUserById(id) {
+  const [user] = await sql`
+    select id, name, email, address, role
+    from users where id = ${id}`
+
+  if (!user) {
+    throw new AppError(404, 'User not found')
+  }
+  return user
+}
+
+export async function changePassword(id, { currentPassword, newPassword }) {
+  const [user] = await sql`select password_hash from users where id = ${id}`
+
+  const passwordOk = await bcrypt.compare(currentPassword, user.password_hash)
+  if (!passwordOk) {
+    throw new AppError(400, 'Current password is incorrect')
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 10)
+  await sql`update users set password_hash = ${newHash} where id = ${id}`
+}
