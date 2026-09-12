@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import sql from './db/db.js'
 import errorHandler from './middleware/errorHandler.js'
 import authRoutes from './routes/auth.routes.js'
+import storeRoutes from './routes/store.routes.js'
 
 
 const app = express()
@@ -20,6 +21,7 @@ app.get('/api/health',async(req,res)=>{
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/stores', storeRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' })

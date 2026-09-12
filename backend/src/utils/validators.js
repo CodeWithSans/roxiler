@@ -32,3 +32,9 @@ export const updatePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
   newPassword: passwordRule,
 })
+
+export const storeQuerySchema = z.object({
+  search: z.string().trim().catch(''),
+  sortBy: z.enum(['name', 'address', 'rating']).catch('name'),
+  order: z.enum(['asc', 'desc']).catch('asc'),
+})
