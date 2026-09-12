@@ -75,3 +75,8 @@ export const createStoreSchema = z.object({
   address: addressRule,
   ownerId: z.uuid('Invalid owner id').optional(),
 })
+
+export const raterQuerySchema = z.object({
+  sortBy: z.enum(['name', 'email', 'rating', 'date']).catch('date'),
+  order: z.enum(['asc', 'desc']).catch('desc'),
+})
