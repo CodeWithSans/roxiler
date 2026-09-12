@@ -38,3 +38,9 @@ export const storeQuerySchema = z.object({
   sortBy: z.enum(['name', 'address', 'rating']).catch('name'),
   order: z.enum(['asc', 'desc']).catch('asc'),
 })
+
+export const ratingSchema = z.object({
+  rating: z.number().int().min(1, 'Rating must be 1 to 5').max(5, 'Rating must be 1 to 5'),
+})
+
+export const idSchema = z.uuid()
