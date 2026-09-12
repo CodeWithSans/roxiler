@@ -6,6 +6,7 @@ import sql from './db/db.js'
 import errorHandler from './middleware/errorHandler.js'
 import authRoutes from './routes/auth.routes.js'
 import storeRoutes from './routes/store.routes.js'
+import adminRoutes from './routes/admin.routes.js'
 
 
 const app = express()
@@ -22,6 +23,7 @@ app.get('/api/health',async(req,res)=>{
 
 app.use('/api/auth', authRoutes)
 app.use('/api/stores', storeRoutes)
+app.use('/api/admin', adminRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' })
