@@ -13,6 +13,8 @@ import NotFoundPage from './pages/NotFoundPage.jsx'
 import AdminUsersPage from './pages/AdminUsersPage.jsx'
 import AddUserPage from './pages/AddUserPage.jsx'
 import UserDetailsPage from './pages/UserDetailsPage.jsx'
+import AdminStoresPage from './pages/AdminStoresPage.jsx'
+import AddStorePage from './pages/AddStorePage.jsx'
 
 const ALL_ROLES = Object.values(ROLES)
 
@@ -39,7 +41,8 @@ export default function App() {
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/users/new" element={<AddUserPage />} />
             <Route path="/admin/users/:id" element={<UserDetailsPage />} />
-
+            <Route path="/admin/stores" element={<AdminStoresPage />} />
+            <Route path="/admin/stores/new" element={<AddStorePage />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={[ROLES.OWNER]} />}>

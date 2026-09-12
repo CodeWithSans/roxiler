@@ -41,3 +41,9 @@ export const createUserSchema = signupSchema.extend({
   role: z.enum(Object.values(ROLES), 'Please choose a role'),
 })
 
+export const createStoreSchema = z.object({
+  name: nameRule,
+  email: emailRule,
+  address: addressRule,
+  ownerId: z.string(),
+})
