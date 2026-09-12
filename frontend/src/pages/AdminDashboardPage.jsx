@@ -1,0 +1,3 @@
+export default function AdminDashboardPage() {
+  return <h1 className="p-8 text-2xl">Admin dashboard</h1>
+}
