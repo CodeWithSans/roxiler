@@ -3,6 +3,8 @@ import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import sql from './db/db.js'
+import errorHandler from './middleware/errorHandler.js'
+
 
 const app = express()
 
@@ -15,4 +17,11 @@ app.get('/api/health',async(req,res)=>{
     const [row]= await sql`select now()`
     res.json({ ok:true, dbTime:row.now})
 })
+
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' })
+})
+
+app.use(errorHandler)
+
 export default app
