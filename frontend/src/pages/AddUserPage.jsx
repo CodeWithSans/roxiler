@@ -3,10 +3,15 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import api, { getErrorMessage } from '../api/client.js'
 import { createUserSchema } from '../utils/validators.js'
 import { ROLES, ROLE_LABELS } from '../utils/constants.js'
+import { cardClass } from '../utils/styles.js'
+import Alert from '../components/Alert.jsx'
 import FormField from '../components/FormField.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { Button, LinkButton } from '../components/Button.jsx'
 
 const ROLE_OPTIONS = Object.values(ROLES).map((role) => ({ value: role, label: ROLE_LABELS[role] }))
 
@@ -25,6 +30,7 @@ export default function AddUserPage() {
     try {
       await api.post('/admin/users', values)
       await queryClient.invalidateQueries({ queryKey: ['admin'] })
+      toast.success(`${values.name} was added`)
       navigate('/admin/users')
     } catch (error) {
       setServerError(getErrorMessage(error))
@@ -32,11 +38,15 @@ export default function AddUserPage() {
   }
 
   return (
-    <div className="max-w-lg rounded-lg bg-white p-6 shadow">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-800">Add user</h1>
+    <div className="max-w-lg space-y-6">
+      <Link to="/admin/users" className="text-sm text-muted transition-colors hover:text-ink">
+        ← Back to users
+      </Link>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        {serverError && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{serverError}</p>}
+      <PageHeader title="Add user" description="Create an account for an admin, store owner or normal user." />
+
+      <form onSubmit={handleSubmit(onSubmit)} className={`${cardClass} space-y-4 p-6`} noValidate>
+        {serverError && <Alert>{serverError}</Alert>}
 
         <FormField label="Full name" error={errors.name} {...register('name')} />
         <FormField label="Email" type="email" error={errors.email} {...register('email')} />
@@ -44,17 +54,13 @@ export default function AddUserPage() {
         <FormField label="Password" type="password" error={errors.password} {...register('password')} />
         <FormField label="Role" options={ROLE_OPTIONS} error={errors.role} {...register('role')} />
 
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isSubmitting ? 'Adding...' : 'Add user'}
-          </button>
-          <Link to="/admin/users" className="rounded border border-gray-300 px-4 py-2 hover:bg-gray-100">
+        <div className="flex justify-end gap-2 pt-2">
+          <LinkButton to="/admin/users" variant="secondary">
             Cancel
-          </Link>
+          </LinkButton>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Adding...' : 'Add user'}
+          </Button>
         </div>
       </form>
     </div>

@@ -1,7 +1,11 @@
 import { Link, useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import api, { getErrorMessage } from '../api/client.js'
+import Alert from '../components/Alert.jsx'
+import RatingBadge from '../components/RatingBadge.jsx'
 import { ROLES, ROLE_LABELS } from '../utils/constants.js'
+import { getInitials } from '../utils/format.js'
+import { cardClass } from '../utils/styles.js'
 
 export default function UserDetailsPage() {
   const { id } = useParams()
@@ -11,30 +15,48 @@ export default function UserDetailsPage() {
     queryFn: async () => (await api.get(`/admin/users/${id}`)).data.user,
   })
 
-  if (isLoading) return <p className="text-gray-500">Loading...</p>
-  if (error) return <p className="text-red-600">{getErrorMessage(error)}</p>
+  const backLink = (
+    <Link to="/admin/users" className="text-sm text-muted transition-colors hover:text-ink">
+      ← Back to users
+    </Link>
+  )
 
-  const details = [
-    ['Name', user.name],
-    ['Email', user.email],
-    ['Address', user.address],
-    ['Role', ROLE_LABELS[user.role]],
-  ]
-  if (user.role === ROLES.OWNER) {
-    details.push(['Store rating', user.rating ? `★ ${user.rating}` : 'No ratings yet'])
+  if (isLoading) return <p className="text-sm text-muted">Loading…</p>
+  if (error) {
+    return (
+      <div className="max-w-2xl space-y-6">
+        {backLink}
+        <Alert>{getErrorMessage(error)}</Alert>
+      </div>
+    )
   }
 
-  return (
-    <div className="max-w-lg space-y-4">
-      <Link to="/admin/users" className="text-sm text-blue-600 hover:underline">← Back to users</Link>
+  const details = [['Role', ROLE_LABELS[user.role]]]
+  if (user.role === ROLES.OWNER) {
+    details.push(['Store rating', <RatingBadge value={user.rating} emptyText="No ratings yet" />])
+  }
+  details.push(['Address', user.address])
 
-      <div className="rounded-lg bg-white p-6 shadow">
-        <h1 className="mb-4 text-2xl font-semibold text-gray-800">User details</h1>
-        <dl className="space-y-3">
+  return (
+    <div className="max-w-2xl space-y-6">
+      {backLink}
+
+      <div className={`${cardClass} p-6`}>
+        <div className="flex items-center gap-4">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-subtle text-sm font-medium text-ink-soft">
+            {getInitials(user.name)}
+          </span>
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-semibold tracking-tight text-ink">{user.name}</h1>
+            <p className="truncate text-sm text-muted">{user.email}</p>
+          </div>
+        </div>
+
+        <dl className="mt-6 grid gap-x-6 gap-y-4 border-t border-line pt-6 sm:grid-cols-2">
           {details.map(([label, value]) => (
-            <div key={label}>
-              <dt className="text-sm text-gray-500">{label}</dt>
-              <dd className="text-gray-800">{value}</dd>
+            <div key={label} className={label === 'Address' ? 'sm:col-span-2' : ''}>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted">{label}</dt>
+              <dd className="mt-1 text-sm text-ink">{value}</dd>
             </div>
           ))}
         </dl>

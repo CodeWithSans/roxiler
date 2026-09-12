@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router'
+import { toast } from 'sonner'
 import api, { getErrorMessage } from '../api/client.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { signupSchema } from '../utils/validators.js'
 import { HOME_BY_ROLE } from '../utils/constants.js'
+import Alert from '../components/Alert.jsx'
 import AuthCard from '../components/AuthCard.jsx'
 import FormField from '../components/FormField.jsx'
+import { Button } from '../components/Button.jsx'
 
 export default function SignupPage() {
   const { login } = useAuth()
@@ -23,6 +26,7 @@ export default function SignupPage() {
     try {
       await api.post('/auth/register', values)
       const user = await login(values.email, values.password)
+      toast.success('Welcome! Your account is ready')
       navigate(HOME_BY_ROLE[user.role], { replace: true })
     } catch (error) {
       setServerError(getErrorMessage(error))
@@ -30,25 +34,24 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthCard title="Create account">
+    <AuthCard title="Create an account" subtitle="Sign up to rate the stores you visit.">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        {serverError && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{serverError}</p>}
+        {serverError && <Alert>{serverError}</Alert>}
 
         <FormField label="Full name" error={errors.name} {...register('name')} />
         <FormField label="Email" type="email" error={errors.email} {...register('email')} />
         <FormField label="Address" rows={3} error={errors.address} {...register('address')} />
         <FormField label="Password" type="password" error={errors.password} {...register('password')} />
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded bg-blue-600 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isSubmitting ? 'Creating account...' : 'Sign up'}
-        </button>
+        <Button type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? 'Creating account...' : 'Create account'}
+        </Button>
 
-        <p className="text-center text-sm text-gray-600">
-          Already have an account? <Link to="/login" className="text-blue-600 underline">Log in</Link>
+        <p className="text-center text-sm text-muted">
+          Already have an account?{' '}
+          <Link to="/login" className="font-medium text-ink underline-offset-4 hover:underline">
+            Sign in
+          </Link>
         </p>
       </form>
     </AuthCard>

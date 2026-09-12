@@ -3,10 +3,15 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import api, { getErrorMessage } from '../api/client.js'
 import { createStoreSchema } from '../utils/validators.js'
 import { ROLES } from '../utils/constants.js'
+import { cardClass } from '../utils/styles.js'
+import Alert from '../components/Alert.jsx'
 import FormField from '../components/FormField.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { Button, LinkButton } from '../components/Button.jsx'
 
 export default function AddStorePage() {
   const navigate = useNavigate()
@@ -33,6 +38,7 @@ export default function AddStorePage() {
     try {
       await api.post('/admin/stores', { ...values, ownerId: values.ownerId || undefined })
       await queryClient.invalidateQueries({ queryKey: ['admin'] })
+      toast.success(`${values.name} was added`)
       navigate('/admin/stores')
     } catch (error) {
       setServerError(getErrorMessage(error))
@@ -40,28 +46,31 @@ export default function AddStorePage() {
   }
 
   return (
-    <div className="max-w-lg rounded-lg bg-white p-6 shadow">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-800">Add store</h1>
+    <div className="max-w-lg space-y-6">
+      <Link to="/admin/stores" className="text-sm text-muted transition-colors hover:text-ink">
+        ← Back to stores
+      </Link>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        {serverError && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{serverError}</p>}
+      <PageHeader
+        title="Add store"
+        description="Store names need at least 20 characters. The owner can be linked later."
+      />
+
+      <form onSubmit={handleSubmit(onSubmit)} className={`${cardClass} space-y-4 p-6`} noValidate>
+        {serverError && <Alert>{serverError}</Alert>}
 
         <FormField label="Store name" error={errors.name} {...register('name')} />
         <FormField label="Store email" type="email" error={errors.email} {...register('email')} />
         <FormField label="Address" rows={3} error={errors.address} {...register('address')} />
         <FormField label="Owner" options={ownerOptions} error={errors.ownerId} {...register('ownerId')} />
 
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isSubmitting ? 'Adding...' : 'Add store'}
-          </button>
-          <Link to="/admin/stores" className="rounded border border-gray-300 px-4 py-2 hover:bg-gray-100">
+        <div className="flex justify-end gap-2 pt-2">
+          <LinkButton to="/admin/stores" variant="secondary">
             Cancel
-          </Link>
+          </LinkButton>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Adding...' : 'Add store'}
+          </Button>
         </div>
       </form>
     </div>

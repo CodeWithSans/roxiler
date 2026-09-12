@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
 import api, { getErrorMessage } from '../api/client.js'
 import { updatePasswordSchema } from '../utils/validators.js'
+import { cardClass } from '../utils/styles.js'
+import Alert from '../components/Alert.jsx'
 import FormField from '../components/FormField.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { Button } from '../components/Button.jsx'
 
 export default function ChangePasswordPage() {
   const [serverError, setServerError] = useState('')
-  const [success, setSuccess] = useState('')
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(updatePasswordSchema),
@@ -15,10 +19,9 @@ export default function ChangePasswordPage() {
 
   async function onSubmit({ currentPassword, newPassword }) {
     setServerError('')
-    setSuccess('')
     try {
       await api.patch('/auth/password', { currentPassword, newPassword })
-      setSuccess('Password updated successfully')
+      toast.success('Password updated')
       reset()
     } catch (error) {
       setServerError(getErrorMessage(error))
@@ -26,24 +29,24 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="max-w-md rounded-lg bg-white p-6 shadow">
-      <h1 className="mb-6 text-2xl font-semibold text-gray-800">Change password</h1>
+    <div className="max-w-md space-y-6">
+      <PageHeader
+        title="Change password"
+        description="Use 8–16 characters with at least one uppercase letter and one special character."
+      />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        {serverError && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{serverError}</p>}
-        {success && <p className="rounded bg-green-50 p-2 text-sm text-green-700">{success}</p>}
+      <form onSubmit={handleSubmit(onSubmit)} className={`${cardClass} space-y-4 p-6`} noValidate>
+        {serverError && <Alert>{serverError}</Alert>}
 
         <FormField label="Current password" type="password" error={errors.currentPassword} {...register('currentPassword')} />
         <FormField label="New password" type="password" error={errors.newPassword} {...register('newPassword')} />
         <FormField label="Confirm new password" type="password" error={errors.confirmPassword} {...register('confirmPassword')} />
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded bg-blue-600 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isSubmitting ? 'Updating...' : 'Update password'}
-        </button>
+        <div className="flex justify-end pt-2">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Updating...' : 'Update password'}
+          </Button>
+        </div>
       </form>
     </div>
   )

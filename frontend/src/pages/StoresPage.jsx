@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import api, { getErrorMessage } from '../api/client.js'
+import Alert from '../components/Alert.jsx'
 import DataTable from '../components/DataTable.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import RatingBadge from '../components/RatingBadge.jsx'
 import StarRating from '../components/StarRating.jsx'
 import { useDebounce } from '../hooks/useDebounce.js'
 import { useSort } from '../hooks/useSort.js'
-
+import { inputClass } from '../utils/styles.js'
 
 export default function StoresPage() {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search)
   const { sortBy, order, toggleSort } = useSort('name')
+  const queryClient = useQueryClient()
 
   const { data: stores, isLoading, isError } = useQuery({
     queryKey: ['stores', { search: debouncedSearch, sortBy, order }],
@@ -21,30 +26,31 @@ export default function StoresPage() {
     placeholderData: keepPreviousData,
   })
 
-    const queryClient = useQueryClient()
-  const [rateError, setRateError] = useState('')
-
   const rateMutation = useMutation({
     mutationFn: ({ storeId, rating }) => api.put(`/stores/${storeId}/rating`, { rating }),
     onMutate: ({ storeId, rating }) => {
-      setRateError('')
       queryClient.setQueriesData({ queryKey: ['stores'] }, (old) =>
         old?.map((store) => (store.id === storeId ? { ...store, user_rating: rating } : store))
       )
     },
-    onError: (error) => setRateError(getErrorMessage(error)),
+    onSuccess: (_response, { rating }) => toast.success(`Rated ${rating} out of 5`),
+    onError: (error) => toast.error(getErrorMessage(error)),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['stores'] }),
   })
 
-
   const columns = [
-    { key: 'name', label: 'Store', sortable: true },
-    { key: 'address', label: 'Address', sortable: true },
-        {
-      key: 'rating',
-      label: 'Overall rating',
+    {
+      key: 'name',
+      label: 'Store',
       sortable: true,
-      render: (store) => (store.overall_rating ? `★ ${store.overall_rating}` : 'No ratings'),
+      render: (store) => <span className="font-medium text-ink">{store.name}</span>,
+    },
+    { key: 'address', label: 'Address', sortable: true },
+    {
+      key: 'rating',
+      label: 'Overall',
+      sortable: true,
+      render: (store) => <RatingBadge value={store.overall_rating} />,
     },
     {
       key: 'user_rating',
@@ -56,30 +62,41 @@ export default function StoresPage() {
             onRate={(rating) => rateMutation.mutate({ storeId: store.id, rating })}
             disabled={rateMutation.isPending}
           />
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-faint">
             {store.user_rating ? 'Click a star to change' : 'Click a star to rate'}
           </span>
         </div>
       ),
     },
-
   ]
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold text-gray-800">Stores</h1>
+    <div className="space-y-6">
+      <PageHeader title="Stores" description="Find a store and rate your experience." />
 
-      <input
-        type="search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search by name or address..."
-        className="w-full max-w-md rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-      />
+      <div className="relative max-w-md">
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-faint"
+        >
+          <circle cx="9" cy="9" r="6" />
+          <path d="m17 17-3.5-3.5" strokeLinecap="round" />
+        </svg>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name or address"
+          aria-label="Search stores"
+          className={`${inputClass} pl-9`}
+        />
+      </div>
 
-      {isError && <p className="text-red-600">Could not load stores</p>}
-      {rateError && <p className="rounded bg-red-50 p-2 text-sm text-red-700">{rateError}</p>}
-
+      {isError && <Alert>Could not load stores</Alert>}
 
       <DataTable
         columns={columns}

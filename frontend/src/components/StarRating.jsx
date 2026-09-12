@@ -14,8 +14,8 @@ export default function StarRating({ value, onRate, disabled }) {
           onClick={() => onRate(star)}
           onMouseEnter={() => setHover(star)}
           aria-label={`Rate ${star} out of 5`}
-          className={`text-xl leading-none disabled:cursor-not-allowed ${
-            star <= shown ? 'text-yellow-400' : 'text-gray-300'
+          className={`text-lg leading-none transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+            star <= shown ? 'text-star' : 'text-line-strong'
           }`}
         >
           ★

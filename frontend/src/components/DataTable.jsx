@@ -1,27 +1,37 @@
+import { cardClass } from '../utils/styles.js'
+
+const SKELETON_ROWS = 4
+
+function SortIcon({ active, order }) {
+  if (!active) {
+    return <span className="text-faint opacity-0 transition-opacity group-hover:opacity-100">↕</span>
+  }
+  return <span className="text-ink">{order === 'asc' ? '↑' : '↓'}</span>
+}
+
 export default function DataTable({
   columns, rows = [], sortBy, order, onSort, isLoading, emptyText = 'No records found',
 }) {
   return (
-    <div className="overflow-x-auto rounded-lg bg-white shadow">
+    <div className={`${cardClass} overflow-x-auto`}>
       <table className="min-w-full text-left text-sm">
-        <thead className="border-b bg-gray-50 text-gray-600">
-          <tr>
+        <thead>
+          <tr className="border-b border-line">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="px-4 py-3 font-medium"
+                scope="col"
+                className="whitespace-nowrap px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted"
                 aria-sort={sortBy === col.key ? (order === 'asc' ? 'ascending' : 'descending') : undefined}
               >
                 {col.sortable ? (
                   <button
                     type="button"
                     onClick={() => onSort(col.key)}
-                    className="flex items-center gap-1 hover:text-gray-900"
+                    className="group inline-flex items-center gap-1 uppercase tracking-wide transition-colors hover:text-ink"
                   >
                     {col.label}
-                    <span className="text-xs">
-                      {sortBy === col.key ? (order === 'asc' ? '▲' : '▼') : '↕'}
-                    </span>
+                    <SortIcon active={sortBy === col.key} order={order} />
                   </button>
                 ) : (
                   col.label
@@ -33,18 +43,26 @@ export default function DataTable({
 
         <tbody>
           {isLoading ? (
-            <tr>
-              <td colSpan={columns.length} className="px-4 py-6 text-center text-gray-500">Loading...</td>
-            </tr>
+            Array.from({ length: SKELETON_ROWS }, (_, index) => (
+              <tr key={index} className="border-b border-line last:border-0">
+                {columns.map((col) => (
+                  <td key={col.key} className="px-4 py-4">
+                    <div className="h-3 w-2/3 animate-pulse rounded bg-line" />
+                  </td>
+                ))}
+              </tr>
+            ))
           ) : rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-6 text-center text-gray-500">{emptyText}</td>
+              <td colSpan={columns.length} className="px-4 py-12 text-center text-sm text-muted">
+                {emptyText}
+              </td>
             </tr>
           ) : (
             rows.map((row, index) => (
-              <tr key={row.id ?? index} className="border-b last:border-0 hover:bg-gray-50">
+              <tr key={row.id ?? index} className="border-b border-line transition-colors last:border-0 hover:bg-canvas">
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3 text-gray-800">
+                  <td key={col.key} className="px-4 py-3 text-ink-soft">
                     {col.render ? col.render(row) : row[col.key]}
                   </td>
                 ))}
